@@ -22,7 +22,7 @@ struct segment_tree {
         for (std::size_t i = initial_size + shift; i < body.size(); ++i)
             body[i] = {neutral1, neutral2};
         for (std::size_t i = shift - 1; i > 0; --i)
-            body[i] = min(body[2 * i], body[2 * i + 1]);
+            body[i] = {operation1(body[2 * i].first, body[2 * i + 1].first), neutral2};
     }
 
     void add(key_t value, std::size_t left, std::size_t right) {
