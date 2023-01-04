@@ -1,7 +1,6 @@
 #include <functional>
 #include <vector>
 #include <stdexcept>
-#include <iterator>
 
 template<class key_t, class operation1_t = std::function<key_t(const key_t&, const key_t&)>
         , class operation2_t = std::function<key_t(const key_t&, const key_t&)>>
@@ -53,7 +52,7 @@ private:
     std::size_t initial_size;
     std::size_t expanded_size;
 
-    void validate_boundaries(std::size_t left, std::size_t right) const{
+    void validate_boundaries(std::size_t left, std::size_t right) const {
         if (left > right)
             throw std::invalid_argument("left boundary more than right");
         if (right >= initial_size)
