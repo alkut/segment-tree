@@ -1,10 +1,11 @@
 #include <functional>
 #include <vector>
+#include <stdexcept>
 
 template<class key_t, class operation1_t = std::function<key_t(const key_t&, const key_t&)>
         , class operation2_t = std::function<key_t(const key_t&, const key_t&)>>
 struct segment_tree {
-    explicit segment_tree(const std::vector<key_t>& x, const operation1_t& operation1 = std::less<key_t>(),
+    explicit segment_tree(const std::vector<key_t>& x, const operation1_t& operation1 = std::min<key_t>(),
             const operation2_t& operation2 = std::plus<key_t>(), const key_t& neutral1 = key_t()
                     , const key_t& neutral2 = key_t()) : operation1(operation1), operation2(operation2)
                     , neutral1(neutral1), initial_size(x.size()) {
@@ -23,6 +24,7 @@ struct segment_tree {
     }
 
     void add(key_t value, std::size_t left, std::size_t right) {
+        validate_boundaries(left, right);
         std::vector<std::size_t> need_update;
         add(1, value, 0, body.size() / 2 - 1, left, right, need_update);
         for (const auto& it: need_update)
@@ -30,6 +32,7 @@ struct segment_tree {
     }
 
     key_t get_min(std::size_t left, std::size_t right) const {
+        validate_boundaries(left, right);
         return get_min(1, 0, body.size() / 2 - 1, left, right);
     }
 
@@ -47,6 +50,13 @@ private:
     key_t neutral1;
     std::size_t initial_size;
     std::size_t expanded_size;
+
+    void validate_boundaries(std::size_t left, std::size_t right) const{
+        if (left > right)
+            throw std::invalid_argument("left boundary more than right");
+        if (right >= initial_size)
+            throw std::out_of_range("right boundary is out of range");
+    }
 
     key_t get_min(std::size_t root, std::size_t v_left, std::size_t v_right, std::size_t left, std::size_t right) const {
         if (v_right < left || v_left > right)

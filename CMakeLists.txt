@@ -4,4 +4,4 @@ project(segment_tree)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(segment_tree
-        main.cpp segment_tree.hpp)
+        main.cpp segment_tree.hpp stupid.hpp)
