@@ -5,10 +5,11 @@
 template<class key_t, class operation1_t = std::function<key_t(const key_t&, const key_t&)>
 , class operation2_t = std::function<key_t(const key_t&, const key_t&)>>
 struct stupid {
-    explicit stupid(const std::vector<key_t>& x, const operation1_t& operation1 = std::less<key_t>(),
-                          const operation2_t& operation2 = std::plus<key_t>(), const key_t& neutral1 = key_t()
+    template<class forward_iterator>
+    explicit stupid(forward_iterator first, forward_iterator last, const operation1_t& operation1 = std::less<key_t>(),
+                    const operation2_t& operation2 = std::plus<key_t>(), const key_t& neutral1 = key_t()
             , const key_t& neutral2 = key_t()) : operation1(operation1), operation2(operation2)
-            , neutral1(neutral1), initial_size(x.size()), body(x) {}
+            , neutral1(neutral1), initial_size(std::distance(first, last)), body(first, last) {}
 
     void add(key_t value, std::size_t left, std::size_t right) {
         validate_boundaries(left, right);

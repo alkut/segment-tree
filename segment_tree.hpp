@@ -1,23 +1,25 @@
 #include <functional>
 #include <vector>
 #include <stdexcept>
+#include <iterator>
 
 template<class key_t, class operation1_t = std::function<key_t(const key_t&, const key_t&)>
         , class operation2_t = std::function<key_t(const key_t&, const key_t&)>>
 struct segment_tree {
-    explicit segment_tree(const std::vector<key_t>& x, const operation1_t& operation1 = std::min<key_t>(),
-            const operation2_t& operation2 = std::plus<key_t>(), const key_t& neutral1 = key_t()
+    template<class forward_iterator>
+    explicit segment_tree(forward_iterator first, forward_iterator last, const operation1_t& operation1 = std::min<key_t>(),
+                          const operation2_t& operation2 = std::plus<key_t>(), const key_t& neutral1 = key_t()
                     , const key_t& neutral2 = key_t()) : operation1(operation1), operation2(operation2)
-                    , neutral1(neutral1), initial_size(x.size()) {
+                    , neutral1(neutral1), initial_size(std::distance(first, last)) {
         expanded_size = 1;
         while (expanded_size < initial_size)
             expanded_size *= 2;
         body.resize(2 * expanded_size);
         std::size_t shift = expanded_size;
         expanded_size *= 2;
-        for (std::size_t i = 0; i < x.size(); ++i)
-            body[i + shift] = {x[i], neutral2};
-        for (std::size_t i = x.size() + shift; i < body.size(); ++i)
+        for (std::size_t i = 0; i < initial_size; ++i)
+            body[i + shift] = {*(first++), neutral2};
+        for (std::size_t i = initial_size + shift; i < body.size(); ++i)
             body[i] = {neutral1, neutral2};
         for (std::size_t i = shift - 1; i > 0; --i)
             body[i] = min(body[2 * i], body[2 * i + 1]);

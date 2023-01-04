@@ -9,8 +9,8 @@ void test(long long n) {
     vector<long long> sample(n);
     for (long long i = 0; i < n; ++i)
         sample[i] = (long long)(random() % 7);
-    segment_tree<long long> tree(sample, min<long long>, plus<>(), LLONG_MAX, 0ll);
-    stupid<long long> st(sample, min<long long>, plus<>(), LLONG_MAX, 0ll);
+    segment_tree<long long> tree(sample.begin(), sample.end(), min<long long>, plus<>(), LLONG_MAX, 0ll);
+    stupid<long long> st(sample.begin(), sample.end(), min<long long>, plus<>(), LLONG_MAX, 0ll);
     vector<pair<long long, pair<long long, long long>>> q;
     for (int i = 0; i < n * n; ++i) {
         if (i & 1) {
@@ -35,7 +35,8 @@ void test(long long n) {
 }
 
 void manual() {
-    segment_tree<long long> tree({1, 3, 5, -6}, min<long long>, plus<>(), LLONG_MAX, 0ll);
+    vector<long long> sample = {1, 3, 5, -6};
+    segment_tree<long long> tree(sample.begin(), sample.end(), min<long long>, plus<>(), LLONG_MAX, 0ll);
     int n = 4;
     tree.add(1, 1, 3);
     for (int i = 0; i < n; ++i)
