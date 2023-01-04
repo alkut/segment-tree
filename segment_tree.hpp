@@ -6,8 +6,8 @@ template<class key_t, class operation1_t = std::function<key_t(const key_t&, con
         , class operation2_t = std::function<key_t(const key_t&, const key_t&)>>
 struct segment_tree {
     template<class forward_iterator>
-    explicit segment_tree(forward_iterator first, forward_iterator last, const operation1_t& operation1 = std::min<key_t>(),
-                          const operation2_t& operation2 = std::plus<key_t>(), const key_t& neutral1 = key_t()
+    explicit segment_tree(forward_iterator first, forward_iterator last, const operation1_t& operation1 = std::min<key_t>()
+            , const operation2_t& operation2 = std::plus<key_t>(), const key_t& neutral1 = key_t()
                     , const key_t& neutral2 = key_t()) : operation1(operation1), operation2(operation2)
                     , neutral1(neutral1), initial_size(std::distance(first, last)) {
         expanded_size = 1;

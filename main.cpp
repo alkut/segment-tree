@@ -2,58 +2,122 @@
 #include "stupid.hpp"
 #include <iostream>
 #include <climits>
+#include <gtest/gtest.h>
 
 using namespace std;
 
-void test(long long n) {
-    vector<long long> sample(n);
-    for (long long i = 0; i < n; ++i)
-        sample[i] = (long long)(random() % 7);
-    segment_tree<long long> tree(sample.begin(), sample.end(), min<long long>, plus<>(), LLONG_MAX, 0ll);
-    stupid<long long> st(sample.begin(), sample.end(), min<long long>, plus<>(), LLONG_MAX, 0ll);
-    vector<pair<long long, pair<long long, long long>>> q;
-    for (int i = 0; i < n * n; ++i) {
-        if (i & 1) {
-            long long left = random() % n, right = random() % n, value = random() % 3;
+class SegmentTreeTester {
+public:
+    SegmentTreeTester() = default;
+    void invoke(long long n) {
+        sample.resize(n);
+        for (long long i = 0; i < n; ++i)
+            sample[i] = (long long)(random() % 7);
+        segment_tree<long long> tree(sample.begin(), sample.end()
+                ,[](long long x, long long y) {
+                    return min(x, y);
+                }
+                ,[](long long x, long long y) {
+                    return x + y;
+                }
+                , LLONG_MAX, 0ll);
+        stupid<long long> st(sample.begin(), sample.end()
+                ,[](long long x, long long y) {
+                    return min(x, y);
+                }
+                ,[](long long x, long long y) {
+                    return x + y;
+                }
+                , LLONG_MAX, 0ll);
+        for (int i = 0; i < n * n; ++i) {
+            if (i & 1) {
+                long long left = random() % n, right = random() % n, value = random() % 3;
+                if (left > right)
+                    swap(left, right);
+                q.push_back({value, {left, right}});
+                tree.add(value, left, right);
+                st.add(value, left, right);
+                continue;
+            }
+            long long left = random() % n, right = random() % n;
             if (left > right)
                 swap(left, right);
-            q.push_back({value, {left, right}});
-            tree.add(value, left, right);
-            st.add(value, left, right);
-            continue;
-        }
-        long long left = random() % n, right = random() % n;
-        if (left > right)
-            swap(left, right);
-        q.push_back({-1, {left, right}});
-        if (tree.get_min(left, right) != st.get_min(left, right)) {
-            cout << "All Bad\n";
-            return;
+            q.push_back({-1, {left, right}});
+            if (tree.get_min(left, right) != st.get_min(left, right)) {
+                test_completed = false;
+                return;
+            }
         }
     }
-    cout << "All right\n";
+
+    vector<long long> sample;
+    vector<pair<long long, pair<long long, long long>>> q;
+    bool test_completed = true;
+
+    void print() {
+        if (test_completed)
+            return;
+        cout << "TEST FAILED!!!" << "\n" << "initial sample: \n";
+        for (const auto& it: sample)
+            cout << it << " ";
+        cout << "\n" << "query stacktrace: \n";
+        for (const auto& [value, bounds]: q) {
+            if (value == -1) continue;
+            cout << "add " << value << " to interval [" << bounds.first << "; " << bounds.second << "]\n";
+        }
+        cout << "get min on interval [" << q.back().second.first << "; " << q.back().second.second << "] failed!!!\n";
+    }
+
+};
+
+class SegmentTreeParameterizedTestFixture :public ::testing::TestWithParam<int> {
+protected:
+    SegmentTreeTester tree;
+};
+
+TEST_P(SegmentTreeParameterizedTestFixture, AutoTest) {
+    int size = GetParam();
+    tree.invoke(size);
+    tree.print();
+    ASSERT_TRUE(tree.test_completed);
 }
 
-void manual() {
+
+INSTANTIATE_TEST_SUITE_P(
+        SegmentTreeTests,
+        SegmentTreeParameterizedTestFixture,
+        ::testing::Values(
+                100, 101, 102, 103, 104, 678, 475, 686, 996
+        ));
+
+TEST(Test, Manual) {
     vector<long long> sample = {1, 3, 5, -6};
-    segment_tree<long long> tree(sample.begin(), sample.end(), min<long long>, plus<>(), LLONG_MAX, 0ll);
+    segment_tree<long long> tree(sample.begin(), sample.end()
+            ,[](long long x, long long y) {
+                return min(x, y);
+            }
+            ,[](long long x, long long y) {
+                return x + y;
+            }
+            , LLONG_MAX, 0ll);
     int n = 4;
+    vector<long long> excepted = {1, 3, 5, -6};
+    for (int i = 0; i < n; ++i)
+        ASSERT_EQ(tree.get_min(i, i), excepted[i]);
     tree.add(1, 1, 3);
+    excepted = {1, 4, 6, -5};
     for (int i = 0; i < n; ++i)
-        cout << tree.get_min(i, i) << " ";
-    cout << "\n";
+        ASSERT_EQ(tree.get_min(i, i), excepted[i]);
     tree.add(1, 0, 2);
+    excepted = {2, 5, 7, -5};
     for (int i = 0; i < n; ++i)
-        cout << tree.get_min(i, i) << " ";
-    cout << "\n";
-    cout << tree.get_min(0, n - 1) << "\n";
+        ASSERT_EQ(tree.get_min(i, i), excepted[i]);
+    ASSERT_EQ(tree.get_min(0, n - 1), -5);
+    ASSERT_ANY_THROW(tree.get_min(0, n));
 }
 
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    manual();
-
-    for (int i = 2; i < 10; ++i) test(i); return 0;
+int main(int argc, char **argv) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
+
