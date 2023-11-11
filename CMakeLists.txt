@@ -1,12 +1,10 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.28)
 project(segment_tree)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
+include(cmake/Environment.cmake)
+include(cmake/FindGTest.cmake)
 
-add_executable(segment_tree
-        main.cpp segment_tree.hpp stupid.hpp)
-
-target_link_libraries(segment_tree ${GTEST_LIBRARIES} pthread)
+add_subdirectory(examples)
+add_subdirectory(tests)

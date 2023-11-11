@@ -1,0 +1,46 @@
+.idea/
+.vs/
+cmake-build-debug/
+cmake-build-release/
+cmake-*
+build/
+
+
+docs/docbook/
+docs/html/
+docs/latex/
+docs/man/
+docs/rtf/
+docs/xml/
+docs/Doxyfile
+
+go/.go-build
+
+rust/target/
+target/
+
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.app
